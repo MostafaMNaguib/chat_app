@@ -1,7 +1,32 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:scholar_chat/firebase_options.dart';
 import 'package:scholar_chat/pages/login_page.dart';
 
-void main() {
+String? fcmToken;
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  try {
+    fcmToken = await FirebaseMessaging.instance.getToken().then((value) => fcmToken = value!);
+    debugPrint("fjsdfsj;fs $fcmToken !!!");
+  } catch (e) {
+    fcmToken = "----";
+    debugPrint("fjsdfsj;ddddddfs $fcmToken !!!");
+    debugPrint(e.toString());
+  }
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+
   runApp(const MyApp());
 }
 
