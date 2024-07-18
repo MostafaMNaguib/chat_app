@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:scholar_chat/pages/chat_page.dart';
 import 'package:scholar_chat/utils/colors.dart';
 import 'package:scholar_chat/widgets/custom_button.dart';
 import 'package:scholar_chat/widgets/custom_text_field.dart';
@@ -64,9 +65,19 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 20,),
             CustomButton(
               onTap: () async {
-                var auth = FirebaseAuth.instance;
-                UserCredential user = await auth.createUserWithEmailAndPassword(email: email, password: password);
-                debugPrint(" ss ${user.credential!.providerId} ${user.user?.displayName}");
+                try{
+                  await registerUser();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatPage()));
+                } on FirebaseAuthException catch(ex){
+                  debugPrint("${ex.email}");
+                  if(ex.code == 'weak-password'){
+                    showSnackBar(context, "weak-password");
+                  }else if(ex.code == 'email-already-in-use'){
+                    showSnackBar(context, "email-already-in-use");
+                  }else{
+                    showSnackBar(context, " ${ex.message}");
+                  }
+                }
               },
               text: "REGISTER",
             ),
@@ -101,4 +112,16 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
+  Future<void> registerUser() async{
+    UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+    debugPrint(" ss ${user.user?.email}");
+  }
+  void showSnackBar(BuildContext context,String message){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+
 }

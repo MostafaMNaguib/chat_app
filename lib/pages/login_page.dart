@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:scholar_chat/pages/chat_page.dart';
 import 'package:scholar_chat/pages/register_page.dart';
 import 'package:scholar_chat/utils/colors.dart';
 import 'package:scholar_chat/widgets/custom_button.dart';
@@ -12,6 +14,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  String email = "";
+  String password = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,14 +50,36 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20,),
             CustomTextField(
+              onChanged: (val){
+                email = val;
+              },
               hintText: "Enter Email",
             ),
             const SizedBox(height: 10,),
             CustomTextField(
+              onChanged: (val){
+                password = val;
+              },
               hintText: "Password",
             ),
             const SizedBox(height: 20,),
-            CustomButton(text: "LOGIN",),
+            CustomButton(
+              onTap: () async {
+                try{
+                  await loginUser();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatPage()));
+                }on FirebaseAuthException catch (ex){
+                  if(ex.code == 'weak-password'){
+                    showSnackBar(context, "weak-password");
+                  }else if(ex.code == 'email-already-in-use'){
+                    showSnackBar(context, "email-already-in-use");
+                  }else{
+                    showSnackBar(context, " ${ex.message}");
+                  }
+                }
+              },
+              text: "LOGIN",
+            ),
             const SizedBox(height: 10,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -84,4 +111,17 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  Future<void> loginUser() async{
+    UserCredential user = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+    debugPrint(" ss ${user.user?.email}");
+
+  }
+
+  void showSnackBar(BuildContext context,String message){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
 }
