@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scholar_chat/pages/chat_page.dart';
 import 'package:scholar_chat/utils/colors.dart';
+import 'package:scholar_chat/utils/constants.dart';
 import 'package:scholar_chat/widgets/custom_button.dart';
 import 'package:scholar_chat/widgets/custom_text_field.dart';
 
@@ -27,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Spacer(flex: 2,),
-            Image.asset("assets/images/scholar.png"),
+            Image.asset(logo),
             const Text(
               "Scholar Chat",
               style: TextStyle(

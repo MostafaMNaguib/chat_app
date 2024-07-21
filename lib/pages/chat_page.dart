@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:scholar_chat/data/message_model.dart';
 import 'package:scholar_chat/utils/chat_bubble.dart';
 import 'package:scholar_chat/utils/colors.dart';
+import 'package:scholar_chat/utils/constants.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key, }) : super(key: key);
@@ -10,11 +13,35 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+
+  CollectionReference fireStore =  FirebaseFirestore.instance.collection(kMessagesCollection);
+  TextEditingController controller = TextEditingController();
+  final _controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(),
+    return StreamBuilder<QuerySnapshot>(
+      stream: fireStore.orderBy('createdAt').snapshots(),
+      builder: (context,snapshot){
+        if(snapshot.hasData){
+          List<MessageModel> messagesList = [];
+          for(int i = 0;i < snapshot.data!.docs.length; i++){
+            messagesList.add(MessageModel.fromJson(snapshot.data!.docs[i]));
+          }
+          return Scaffold(
+            appBar: _buildAppBar(),
+            body: _buildBody(messagesList),
+          );
+        }else{
+          return const Scaffold(
+            body: Center(
+              child: Text(
+                  "Loading"
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -42,22 +69,24 @@ class _ChatPageState extends State<ChatPage> {
   List<String> messages = [];
   String message = "";
 
-  Widget _buildBody(){
+  Widget _buildBody(List<MessageModel> messages){
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
+            controller: _controller,
             itemCount: messages.length,
             shrinkWrap: true,
             padding: EdgeInsets.zero,
             itemBuilder: (context,index){
-              return const ChatBubble();
+              return ChatBubble(message: messages[index],);
             },
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(16),
           child: TextField(
+            controller: controller,
             onChanged: (val){
               message = val;
             },
@@ -67,8 +96,19 @@ class _ChatPageState extends State<ChatPage> {
 
               ),
               suffixIcon: InkWell(
-                onTap: (){
-                  messages.add(message);
+                onTap: () async{
+                  // messages.add(message);
+                  await fireStore.add({
+                    "message" : message,
+                    "user" : "user1",
+                    "createdAt": DateTime.now(),
+                  });
+                  controller.clear();
+                  _controller.animateTo(
+                      _controller.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 10),
+                      curve: Curves.fastOutSlowIn
+                  );
                   setState(() {});
                 },
                 child: const Icon(
