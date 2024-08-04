@@ -6,7 +6,9 @@ import 'package:scholar_chat/utils/colors.dart';
 import 'package:scholar_chat/utils/constants.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key, }) : super(key: key);
+  const ChatPage({Key? key, required this.email, }) : super(key: key);
+
+  final String email;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -79,7 +81,9 @@ class _ChatPageState extends State<ChatPage> {
             shrinkWrap: true,
             padding: EdgeInsets.zero,
             itemBuilder: (context,index){
-              return ChatBubble(message: messages[index],);
+              return messages[index].id == widget.email ?
+              ChatBubble(message: messages[index],) :
+              ChatBubbleForFriend(message: messages[index]);
             },
           ),
         ),
@@ -101,6 +105,7 @@ class _ChatPageState extends State<ChatPage> {
                   await fireStore.add({
                     "message" : message,
                     "user" : "user1",
+                    "id" : widget.email,
                     "createdAt": DateTime.now(),
                   });
                   controller.clear();

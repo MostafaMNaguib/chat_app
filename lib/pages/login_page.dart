@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
               onTap: () async {
                 try{
                   await loginUser();
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(email: email,)));
                 }on FirebaseAuthException catch (ex){
                   if(ex.code == 'weak-password'){
                     showSnackBar(context, "weak-password");

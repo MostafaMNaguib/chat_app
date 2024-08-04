@@ -10,7 +10,7 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
         padding: const EdgeInsets.all(16,),
@@ -41,20 +41,18 @@ class ChatBubbleForFriend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerEnd,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
         padding: const EdgeInsets.all(16,),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadiusDirectional.only(
+        decoration: const BoxDecoration(
+          color: secondaryColor,
+          borderRadius: BorderRadiusDirectional.only(
             topEnd: Radius.circular(32),
             topStart: Radius.circular(32),
-            bottomEnd: Radius.circular(32),
+            bottomStart: Radius.circular(32),
           ),
-          border: Border.all(
-            color: primaryColor,
-          ),
+
         ),
         child: Text(
           message.text,
